@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tase_evaluation"
+version = "0.1.0"
+description = "Internal evaluation library wrapping MLflow GenAI"
+requires-python = ">=3.11"
+dependencies = [
+    "mlflow>=3.16.0",
+    "pandas>=2.0",
+    "openpyxl>=3.1",
+    "requests",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tase_evaluation"]
