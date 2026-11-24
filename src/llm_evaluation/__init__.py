@@ -7,6 +7,7 @@ from llm_evaluation._datasets import create_dataset, create_dataset_from_df
 from llm_evaluation._evaluate import evaluate
 from llm_evaluation._judges import create_judge as create_judge
 from llm_evaluation._excel import write_results_to_excel
+from llm_evaluation import pipelines
 
 __all__ = [
     "scorer",
@@ -22,4 +23,5 @@ __all__ = [
     "evaluate",
     "create_judge",
     "write_results_to_excel",
+    "pipelines",
 ]

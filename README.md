@@ -1,6 +1,6 @@
 # llm_evaluation
 
-Internal evaluation library wrapping MLflow GenAI. Provides simple function calls to create datasets, run evaluations with custom and built-in scorers, and execute LLM-as-judge steps. Every evaluation run automatically produces an Excel report.
+Evaluation library wrapping MLflow GenAI (formerly `tase_evaluation`). Provides simple function calls to create datasets, run evaluations with custom and built-in scorers, and execute LLM-as-judge steps. Every evaluation run automatically produces an Excel report.
 
 ## Installation
 
@@ -9,7 +9,7 @@ Internal evaluation library wrapping MLflow GenAI. Provides simple function call
 pip install -e .
 
 # From git
-pip install git+https://github.com/Dorsivan/evaluation_library
+pip install "git+https://github.com/Dorsivan/evaluation_library@workshop"
 
 # If published to a PyPI registry
 pip install llm_evaluation
@@ -176,6 +176,21 @@ results = evaluate(
 )
 ```
 
+**Run naming, tags and the Excel artifact (workshop branch):**
+
+```python
+results = evaluate(
+    data=dataset,
+    predict_fn=my_predict,
+    scorers=[my_scorer],
+    run_name="arbiter-staging",                 # name of the MLflow evaluation run
+    tags={"arbiter.prompt_alias": "staging"},   # tags on the run
+    log_excel_to_mlflow=True,                   # default: Excel attached under reports/
+)
+```
+
+If an MLflow run is already active, `evaluate()` logs into it instead of starting a new one.
+
 **Accessing results:**
 
 ```python
@@ -291,3 +306,32 @@ twine upload dist/*
 ## Examples
 
 See [`examples/k8s_evaluation.py`](examples/k8s_evaluation.py) for a complete example evaluating Kubernetes manifest generation with custom code scorers and an LLM judge.
+
+## Pipeline helpers (`llm_evaluation.pipelines`)
+
+Plain-Python building blocks for evaluation pipelines (used by the workshop's Kubeflow pipeline components):
+
+```python
+from llm_evaluation.pipelines import run_evaluation, compare_and_gate, log_gate_decision
+
+baseline = run_evaluation("arbiter_k8s_manifests_v1", predict_production, scorers, run_name="production")
+candidate = run_evaluation("arbiter_k8s_manifests_v1", predict_staging, scorers, run_name="staging")
+# -> {"metrics": {"is_valid_yaml/mean": 1.0, ...}, "run_id": "..."}
+
+passed, reasons = compare_and_gate(
+    candidate["metrics"],
+    baseline["metrics"],
+    thresholds={"is_valid_yaml/mean": 0.95},
+    must_not_regress=["k8s_manifest_quality/mean"],
+)
+log_gate_decision(passed, reasons, run_id=candidate["run_id"])
+```
+
+`dataset` can be an MLflow dataset object, a list of records, or a dataset name. Choose prediction mode (in-process vs. HTTP) and scorer profile by passing the matching `predict_fn` and `scorers`.
+
+## Examples
+
+- `examples/k8s_evaluation.py` evaluates arbiter over HTTP (`ARBITER_API_URL`).
+- `examples/arbiter_inprocess.py` evaluates arbiter in-process (needs arbiter's `workshop` branch importable), so each row carries the full arbiter trace.
+
+Install example extras with `pip install -e ".[examples]"`.

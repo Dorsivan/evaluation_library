@@ -6,6 +6,7 @@ from typing import Any, Callable
 
 import requests
 import mlflow
+from mlflow.tracking import MlflowClient
 from mlflow.genai.evaluation.entities import EvaluationResult
 
 from llm_evaluation._config import get_config
@@ -48,7 +49,16 @@ def evaluate(
     model_id: str | None = None,
     excel_path: str | Path | None = None,
     skip_excel: bool = False,
+    log_excel_to_mlflow: bool = True,
+    run_name: str | None = None,
+    tags: dict[str, str] | None = None,
 ) -> EvaluationResult:
+    """Run ``mlflow.genai.evaluate`` and export an Excel report.
+
+    ``run_name``/``tags`` are applied to the evaluation run. When
+    ``log_excel_to_mlflow`` is true the Excel report is attached to that run
+    as an artifact (under ``reports/``).
+    """
     if predict_fn is None and predict_url is not None:
         predict_fn = _make_http_predict(
             url=predict_url,
@@ -62,12 +72,20 @@ def evaluate(
     if judge_prompt is not None:
         all_scorers.append(create_judge(name=judge_name, instructions=judge_prompt))
 
-    result = mlflow.genai.evaluate(
-        data=data,
-        scorers=all_scorers,
-        predict_fn=predict_fn,
-        model_id=model_id,
-    )
+    get_config()  # make sure tracking URI / workspace / experiment are set
+
+    if mlflow.active_run() is not None:
+        # Caller manages the run (e.g. nested in a pipeline step).
+        if tags:
+            mlflow.set_tags(tags)
+        result = mlflow.genai.evaluate(
+            data=data, scorers=all_scorers, predict_fn=predict_fn, model_id=model_id
+        )
+    else:
+        with mlflow.start_run(run_name=run_name, tags=tags):
+            result = mlflow.genai.evaluate(
+                data=data, scorers=all_scorers, predict_fn=predict_fn, model_id=model_id
+            )
 
     if not skip_excel and result.result_df is not None:
         cfg = get_config()
@@ -78,5 +96,9 @@ def evaluate(
 
         excel_path = write_results_to_excel(result.result_df, result.metrics, excel_path)
         print(f"Results exported to {excel_path}")
+
+        if log_excel_to_mlflow and result.run_id:
+            MlflowClient().log_artifact(result.run_id, str(excel_path), artifact_path="reports")
+            print(f"Excel report logged to MLflow run {result.run_id} (reports/)")
 
     return result
