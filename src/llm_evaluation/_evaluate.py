@@ -8,9 +8,9 @@ import requests
 import mlflow
 from mlflow.genai.evaluation.entities import EvaluationResult
 
-from tase_evaluation._config import get_config
-from tase_evaluation._excel import write_results_to_excel
-from tase_evaluation._judges import create_judge
+from llm_evaluation._config import get_config
+from llm_evaluation._excel import write_results_to_excel
+from llm_evaluation._judges import create_judge
 
 
 def _make_http_predict(

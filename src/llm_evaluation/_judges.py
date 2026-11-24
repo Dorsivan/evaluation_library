@@ -4,7 +4,7 @@ from typing import Any
 
 from mlflow.genai.judges import make_judge
 
-from tase_evaluation._config import get_config
+from llm_evaluation._config import get_config
 
 
 def create_judge(

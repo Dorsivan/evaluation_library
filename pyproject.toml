@@ -3,12 +3,13 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "tase_evaluation"
+name = "llm_evaluation"
 version = "0.1.0"
-description = "Internal evaluation library wrapping MLflow GenAI"
+description = "Evaluation helpers wrapping MLflow GenAI (datasets, scorers, LLM judges, Excel reports)"
 requires-python = ">=3.11"
 dependencies = [
-    "mlflow>=3.16.0",
+    # Pin to the MLflow server version shipped with RHOAI once known.
+    "mlflow>=3.10,<4",
     "pandas>=2.0",
     "openpyxl>=3.1",
     "requests",
@@ -21,4 +22,4 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/tase_evaluation"]
+packages = ["src/llm_evaluation"]

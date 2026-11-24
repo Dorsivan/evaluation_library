@@ -4,7 +4,7 @@ import os
 import yaml
 import requests
 
-from tase_evaluation import (
+from llm_evaluation import (
     configure,
     scorer,
     evaluate,

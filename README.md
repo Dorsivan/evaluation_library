@@ -1,4 +1,4 @@
-# tase_evaluation
+# llm_evaluation
 
 Internal evaluation library wrapping MLflow GenAI. Provides simple function calls to create datasets, run evaluations with custom and built-in scorers, and execute LLM-as-judge steps. Every evaluation run automatically produces an Excel report.
 
@@ -12,13 +12,13 @@ pip install -e .
 pip install git+https://github.com/Dorsivan/evaluation_library
 
 # If published to a PyPI registry
-pip install tase_evaluation
+pip install llm_evaluation
 ```
 
 ## Quick Start
 
 ```python
-from tase_evaluation import scorer, evaluate, create_dataset
+from llm_evaluation import scorer, evaluate, create_dataset
 
 # 1. Create a dataset
 dataset = create_dataset("my_eval_v1", records=[
@@ -67,7 +67,7 @@ The library reads configuration from environment variables by default. You can a
 ### Explicit Configuration
 
 ```python
-from tase_evaluation import configure, EvalConfig
+from llm_evaluation import configure, EvalConfig
 
 # Option 1: keyword overrides (env vars fill the rest)
 configure(
@@ -193,7 +193,7 @@ The Excel output has two sheets:
 Decorate any function with `@scorer` to create a custom scorer:
 
 ```python
-from tase_evaluation import scorer
+from llm_evaluation import scorer
 
 @scorer
 def my_check(outputs: str) -> bool:
@@ -218,7 +218,7 @@ Return types: `bool`, `int`, `float`, `str`.
 Re-exported from MLflow for convenience:
 
 ```python
-from tase_evaluation import Correctness, Safety, RelevanceToQuery, get_config
+from llm_evaluation import Correctness, Safety, RelevanceToQuery, get_config
 
 cfg = get_config()
 
@@ -242,8 +242,8 @@ python -m build
 ```
 
 This produces two files in `dist/`:
-- `tase_evaluation-0.1.0-py3-none-any.whl` (wheel)
-- `tase_evaluation-0.1.0.tar.gz` (source distribution)
+- `llm_evaluation-0.1.0-py3-none-any.whl` (wheel)
+- `llm_evaluation-0.1.0.tar.gz` (source distribution)
 
 ### Upload to PyPI
 
