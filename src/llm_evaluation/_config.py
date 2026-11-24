@@ -72,7 +72,16 @@ def get_config() -> EvalConfig:
     return _active_config
 
 
+def _apply_judge_env(cfg: EvalConfig) -> None:
+    """Older MLflow judges (e.g. 3.10) only read the OpenAI-compatible endpoint from env vars."""
+    if cfg.judge_model_url:
+        os.environ["OPENAI_API_BASE"] = cfg.judge_model_url
+    if cfg.judge_api_key:
+        os.environ["OPENAI_API_KEY"] = cfg.judge_api_key
+
+
 def _apply_mlflow_settings(cfg: EvalConfig) -> None:
+    _apply_judge_env(cfg)
     mlflow.set_tracking_uri(cfg.tracking_uri)
     if cfg.workspace:
         mlflow.set_workspace(cfg.workspace)

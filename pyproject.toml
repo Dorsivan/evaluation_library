@@ -9,7 +9,7 @@ description = "Evaluation helpers wrapping MLflow GenAI (datasets, scorers, LLM 
 requires-python = ">=3.11"
 dependencies = [
     # Pin to the MLflow server version shipped with RHOAI once known.
-    "mlflow>=3.10,<4",
+    "mlflow>=3.10,<3.11",
     "pandas>=2.0",
     "openpyxl>=3.1",
     "requests",
